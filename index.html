@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シュート率トラッカー</title>
+
+    <style>
+        body{
+            font-family: "Yu Gothic", sans-serif;
+            text-align:center;
+            background:#f4f4f4;
+            padding:40px;
+        }
+
+        .card{
+            background:white;
+            width:320px;
+            margin:auto;
+            padding:20px;
+            border-radius:15px;
+            box-shadow:0 0 10px rgba(0,0,0,0.2);
+        }
+
+       button{
+    width:90%;
+    font-size:30px;
+    padding:20px;
+    margin:12px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+}.success-btn{
+    background:#4CAF50;
+    color:white;
+}
+
+.success-btn:hover{
+    background:#43A047;
+}
+
+.miss-btn{
+    background:#E53935;
+    color:white;
+}
+
+.miss-btn:hover{
+    background:#D32F2F;
+}
+
+.reset-btn{
+    background:#9E9E9E;
+    color:white;
+}
+
+.reset-btn:hover{
+    background:#757575;
+}
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🏀 シュート率トラッカー</h1>
+
+<h2>成功 <span id="success">0</span></h2>
+
+<h2>失敗 <span id="miss">0</span></h2>
+
+<h2>成功率 <span id="rate">0</span>%</h2>
+
+<button class="success-btn" onclick="addSuccess()">🏀 成功</button>
+
+<button class="miss-btn" onclick="addMiss()">❌ 失敗</button>
+
+<button class="reset-btn" onclick="resetScore()">🔄 リセット</button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
