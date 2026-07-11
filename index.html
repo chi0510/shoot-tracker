@@ -1,132 +1,90 @@
-let success = Number(localStorage.getItem("success")) || 0;
-let miss = Number(localStorage.getItem("miss")) || 0;
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シュート率トラッカー</title>
 
-let recognition = null;
-let voiceActive = false;
-
-// 画面の数字を更新する
-function updateDisplay() {
-    document.getElementById("success").textContent = success;
-    document.getElementById("miss").textContent = miss;
-
-    const total = success + miss;
-    let rate = 0;
-
-    if (total > 0) {
-        rate = (success / total * 100).toFixed(1);
-    }
-
-    document.getElementById("rate").textContent = rate;
-}
-
-// 数字をブラウザに保存する
-function saveScore() {
-    localStorage.setItem("success", success);
-    localStorage.setItem("miss", miss);
-}
-
-// 成功を1つ増やす
-function addSuccess() {
-    success++;
-    saveScore();
-    updateDisplay();
-}
-
-// 失敗を1つ増やす
-function addMiss() {
-    miss++;
-    saveScore();
-    updateDisplay();
-}
-
-// 記録をリセットする
-function resetScore() {
-    const answer = confirm("記録を0に戻しますか？");
-
-    if (answer) {
-        success = 0;
-        miss = 0;
-        saveScore();
-        updateDisplay();
-    }
-}
-
-// 音声入力を開始する
-function startVoice() {
-    const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    const status = document.getElementById("voiceStatus");
-
-    if (!SpeechRecognition) {
-        alert("このブラウザでは音声入力を使えません。");
-        return;
-    }
-
-    // 二重に開始しないようにする
-    if (voiceActive) {
-        status.textContent = "すでに音声を聞き取り中です";
-        return;
-    }
-
-    recognition = new SpeechRecognition();
-    recognition.lang = "ja-JP";
-    recognition.continuous = true;
-    recognition.interimResults = false;
-
-    voiceActive = true;
-
-    status.textContent =
-        "聞き取り中です。「入った」または「外れた」と話してください";
-
-    recognition.onresult = function (event) {
-        const lastResult = event.results[event.results.length - 1];
-        const words = lastResult[0].transcript.trim();
-
-        status.textContent = "聞き取った言葉：" + words;
-
-        if (words.includes("入った") || words.includes("成功")) {
-            addSuccess();
-        } else if (
-            words.includes("外れた") ||
-            words.includes("外れ") ||
-            words.includes("失敗")
-        ) {
-            addMiss();
-        }
-    };
-
-    recognition.onerror = function (event) {
-        if (
-            event.error === "not-allowed" ||
-            event.error === "service-not-allowed"
-        ) {
-            voiceActive = false;
-            status.textContent = "マイクの使用が許可されていません";
-            return;
+    <style>
+        body {
+            font-family: "Yu Gothic", sans-serif;
+            text-align: center;
+            background: #f4f4f4;
+            padding: 20px;
+            margin: 0;
         }
 
-        status.textContent = "音声入力エラー：" + event.error;
-    };
-
-    recognition.onend = function () {
-        // ブラウザ側で停止しても、自動的に聞き取りを再開する
-        if (voiceActive) {
-            setTimeout(function () {
-                try {
-                    recognition.start();
-                    status.textContent =
-                        "聞き取り中です。「入った」または「外れた」と話してください";
-                } catch (error) {
-                    voiceActive = false;
-                    status.textContent = "音声入力が停止しました";
-                }
-            }, 500);
+        .card {
+            background: white;
+            max-width: 360px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
         }
-    };
 
-    recognition.start();
-}
+        h1 {
+            font-size: 28px;
+        }
 
-// 保存されている数字を最初に表示する
-updateDisplay();
+        button {
+            width: 90%;
+            font-size: 28px;
+            padding: 18px;
+            margin: 10px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        .success-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .miss-btn {
+            background: #E53935;
+            color: white;
+        }
+
+        .reset-btn {
+            background: #9E9E9E;
+            color: white;
+        }
+
+        .voice-btn {
+            background: #1976D2;
+            color: white;
+        }
+
+        #voiceStatus {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h1>🏀 シュート率トラッカー</h1>
+
+    <h2>成功 <span id="success">0</span></h2>
+    <h2>失敗 <span id="miss">0</span></h2>
+    <h2>成功率 <span id="rate">0</span>%</h2>
+
+    <button class="success-btn" onclick="addSuccess()">🏀 成功</button>
+    <button class="miss-btn" onclick="addMiss()">❌ 失敗</button>
+    <button class="reset-btn" onclick="resetScore()">🔄 リセット</button>
+    <button class="voice-btn" onclick="startVoice()">🎤 音声入力開始</button>
+
+    <p id="voiceStatus">音声入力は停止中です</p>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
