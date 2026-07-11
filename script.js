@@ -78,15 +78,22 @@ function startVoice() {
 
         status.textContent = "聞き取った言葉：" + words;
 
-        if (words.includes("入った") || words.includes("成功")) {
-            addSuccess();
-        } else if (
-            words.includes("外れた") ||
-            words.includes("外れ") ||
-            words.includes("失敗")
-        ) {
-            addMiss();
-        }
+        if (
+    words.includes("まる") ||
+    words.includes("マル") ||
+    words.includes("入った") ||
+    words.includes("成功")
+) {
+    addSuccess();
+} else if (
+    words.includes("ばつ") ||
+    words.includes("バツ") ||
+    words.includes("外れた") ||
+    words.includes("外れ") ||
+    words.includes("失敗")
+) {
+    addMiss();
+}
     };
 
     recognition.onerror = function (event) {
