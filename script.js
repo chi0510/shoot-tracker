@@ -3,6 +3,8 @@ let miss = Number(localStorage.getItem("miss")) || 0;
 
 let recognition = null;
 let voiceActive = false;
+let audioContext = null;
+let lastCommandTime = 0;
 
 function updateDisplay() {
     document.getElementById("success").textContent = success;
@@ -23,16 +25,63 @@ function saveScore() {
     localStorage.setItem("miss", miss);
 }
 
+function prepareSound() {
+    const AudioContext =
+        window.AudioContext || window.webkitAudioContext;
+
+    if (!audioContext && AudioContext) {
+        audioContext = new AudioContext();
+    }
+
+    if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+}
+
+function playTone(frequency, duration) {
+    if (!audioContext) {
+        return;
+    }
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = "sine";
+
+    gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + duration
+    );
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+}
+
+function playSuccessSound() {
+    playTone(880, 0.18);
+}
+
+function playMissSound() {
+    playTone(330, 0.25);
+}
+
 function addSuccess() {
     success++;
     saveScore();
     updateDisplay();
+    playSuccessSound();
 }
 
 function addMiss() {
     miss++;
     saveScore();
     updateDisplay();
+    playMissSound();
 }
 
 function resetScore() {
@@ -62,6 +111,8 @@ function startVoice() {
         return;
     }
 
+    prepareSound();
+
     recognition = new SpeechRecognition();
     recognition.lang = "ja-JP";
     recognition.continuous = true;
@@ -70,7 +121,7 @@ function startVoice() {
     voiceActive = true;
 
     status.textContent =
-        "聞き取り中です。「入った」または「外れた」と話してください";
+        "聞き取り中です。「マル」または「バツ」と話してください";
 
     recognition.onresult = function (event) {
         const lastResult = event.results[event.results.length - 1];
@@ -78,22 +129,31 @@ function startVoice() {
 
         status.textContent = "聞き取った言葉：" + words;
 
+        const now = Date.now();
+
+        if (now - lastCommandTime < 700) {
+            return;
+        }
+
         if (
-    words.includes("まる") ||
-    words.includes("マル") ||
-    words.includes("入った") ||
-    words.includes("成功")
-) {
-    addSuccess();
-} else if (
-    words.includes("ばつ") ||
-    words.includes("バツ") ||
-    words.includes("外れた") ||
-    words.includes("外れ") ||
-    words.includes("失敗")
-) {
-    addMiss();
-}
+            words.includes("まる") ||
+            words.includes("マル") ||
+            words.includes("丸") ||
+            words.includes("入った") ||
+            words.includes("成功")
+        ) {
+            lastCommandTime = now;
+            addSuccess();
+        } else if (
+            words.includes("ばつ") ||
+            words.includes("バツ") ||
+            words.includes("外れた") ||
+            words.includes("外れ") ||
+            words.includes("失敗")
+        ) {
+            lastCommandTime = now;
+            addMiss();
+        }
     };
 
     recognition.onerror = function (event) {
@@ -115,7 +175,7 @@ function startVoice() {
                 try {
                     recognition.start();
                     status.textContent =
-                        "聞き取り中です。「入った」または「外れた」と話してください";
+                        "聞き取り中です。「マル」または「バツ」と話してください";
                 } catch (error) {
                     voiceActive = false;
                     status.textContent = "音声入力が停止しました";
