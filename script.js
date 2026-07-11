@@ -25,7 +25,7 @@ function saveScore() {
     localStorage.setItem("miss", miss);
 }
 
-function prepareSound() {
+async function prepareSound() {
     const AudioContext =
         window.AudioContext || window.webkitAudioContext;
 
@@ -34,11 +34,13 @@ function prepareSound() {
     }
 
     if (audioContext && audioContext.state === "suspended") {
-        audioContext.resume();
+        await audioContext.resume();
     }
 }
 
-function playTone(frequency, duration) {
+async function playTone(frequency, duration) {
+    await prepareSound();
+
     if (!audioContext) {
         return;
     }
@@ -49,10 +51,17 @@ function playTone(frequency, duration) {
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
 
-    oscillator.frequency.value = frequency;
     oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(
+        frequency,
+        audioContext.currentTime
+    );
 
-    gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+    gain.gain.setValueAtTime(
+        0.6,
+        audioContext.currentTime
+    );
+
     gain.gain.exponentialRampToValueAtTime(
         0.01,
         audioContext.currentTime + duration
@@ -63,11 +72,11 @@ function playTone(frequency, duration) {
 }
 
 function playSuccessSound() {
-    playTone(880, 0.18);
+    playTone(1000, 0.3);
 }
 
 function playMissSound() {
-    playTone(330, 0.25);
+    playTone(300, 0.4);
 }
 
 function addSuccess() {
