@@ -4,7 +4,6 @@ let miss = Number(localStorage.getItem("miss")) || 0;
 let recognition = null;
 let voiceActive = false;
 
-// 画面の数字を更新する
 function updateDisplay() {
     document.getElementById("success").textContent = success;
     document.getElementById("miss").textContent = miss;
@@ -19,27 +18,23 @@ function updateDisplay() {
     document.getElementById("rate").textContent = rate;
 }
 
-// 数字をブラウザに保存する
 function saveScore() {
     localStorage.setItem("success", success);
     localStorage.setItem("miss", miss);
 }
 
-// 成功を1つ増やす
 function addSuccess() {
     success++;
     saveScore();
     updateDisplay();
 }
 
-// 失敗を1つ増やす
 function addMiss() {
     miss++;
     saveScore();
     updateDisplay();
 }
 
-// 記録をリセットする
 function resetScore() {
     const answer = confirm("記録を0に戻しますか？");
 
@@ -51,7 +46,6 @@ function resetScore() {
     }
 }
 
-// 音声入力を開始する
 function startVoice() {
     const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -63,7 +57,6 @@ function startVoice() {
         return;
     }
 
-    // 二重に開始しないようにする
     if (voiceActive) {
         status.textContent = "すでに音声を聞き取り中です";
         return;
@@ -110,7 +103,6 @@ function startVoice() {
     };
 
     recognition.onend = function () {
-        // ブラウザ側で停止しても、自動的に聞き取りを再開する
         if (voiceActive) {
             setTimeout(function () {
                 try {
@@ -128,5 +120,16 @@ function startVoice() {
     recognition.start();
 }
 
-// 保存されている数字を最初に表示する
+function stopVoice() {
+    const status = document.getElementById("voiceStatus");
+
+    voiceActive = false;
+
+    if (recognition) {
+        recognition.stop();
+    }
+
+    status.textContent = "音声入力を停止しました";
+}
+
 updateDisplay();
