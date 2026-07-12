@@ -143,13 +143,24 @@ const missWords = [
     "NO",
     "ノー"
 ];
-        if (successWords.some(word => words.includes(word))) {
-            lastCommandTime = now;
-            addSuccess();
-        } else if (missWords.some(word => words.includes(word))) {
-            lastCommandTime = now;
-            addMiss();
-        }
+      if (
+    words.includes("よし") ||
+    words.includes("ヨシ") ||
+    words.includes("入った") ||
+    words.includes("成功")
+) {
+    lastCommandTime = now;
+    addSuccess();
+} else if (
+    words.includes("だめ") ||
+    words.includes("ダメ") ||
+    words.includes("失敗") ||
+    words.includes("外れた") ||
+    words.includes("外れ")
+) {
+    lastCommandTime = now;
+    addMiss();
+}  
     };
 
     recognition.onerror = function (event) {
