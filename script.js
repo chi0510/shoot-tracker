@@ -125,15 +125,24 @@ function startVoice() {
         if (now - lastCommandTime < 700) return;
 
         const successWords = [
-            "まる", "マル", "丸", "○", "〇",
-            "入った", "成功"
-        ];
+    "よし",
+    "ヨシ",
+    "入った",
+    "成功",
+    "OK",
+    "オーケー"
+];
 
-        const missWords = [
-            "ばつ", "バツ", "罰", "×", "✕",
-            "外れた", "外れ", "失敗"
-        ];
-
+const missWords = [
+    "だめ",
+    "ダメ",
+    "ダメだ",
+    "失敗",
+    "外れた",
+    "外れ",
+    "NO",
+    "ノー"
+];
         if (successWords.some(word => words.includes(word))) {
             lastCommandTime = now;
             addSuccess();
