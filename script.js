@@ -11,11 +11,9 @@ function updateDisplay() {
     document.getElementById("miss").textContent = miss;
 
     const total = success + miss;
-    let rate = 0;
-
-    if (total > 0) {
-        rate = (success / total * 100).toFixed(1);
-    }
+    const rate = total > 0
+        ? (success / total * 100).toFixed(1)
+        : 0;
 
     document.getElementById("rate").textContent = rate;
 }
@@ -41,9 +39,7 @@ async function prepareSound() {
 async function playTone(frequency, duration) {
     await prepareSound();
 
-    if (!audioContext) {
-        return;
-    }
+    if (!audioContext) return;
 
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
@@ -52,16 +48,9 @@ async function playTone(frequency, duration) {
     gain.connect(audioContext.destination);
 
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(
-        frequency,
-        audioContext.currentTime
-    );
+    oscillator.frequency.value = frequency;
 
-    gain.gain.setValueAtTime(
-        0.6,
-        audioContext.currentTime
-    );
-
+    gain.gain.setValueAtTime(0.5, audioContext.currentTime);
     gain.gain.exponentialRampToValueAtTime(
         0.01,
         audioContext.currentTime + duration
@@ -71,32 +60,22 @@ async function playTone(frequency, duration) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
-function playSuccessSound() {
-    playTone(1000, 0.3);
-}
-
-function playMissSound() {
-    playTone(300, 0.4);
-}
-
 function addSuccess() {
     success++;
     saveScore();
     updateDisplay();
-    playSuccessSound();
+    playTone(1000, 0.3);
 }
 
 function addMiss() {
     miss++;
     saveScore();
     updateDisplay();
-    playMissSound();
+    playTone(300, 0.4);
 }
 
 function resetScore() {
-    const answer = confirm("記録を0に戻しますか？");
-
-    if (answer) {
+    if (confirm("記録を0に戻しますか？")) {
         success = 0;
         miss = 0;
         saveScore();
@@ -134,32 +113,31 @@ function startVoice() {
 
     recognition.onresult = function (event) {
         const lastResult = event.results[event.results.length - 1];
-        const words = lastResult[0].transcript.trim();
+        const originalWords = lastResult[0].transcript.trim();
 
-        status.textContent = "聞き取った言葉：" + words;
+        // 空白を除いて判定しやすくする
+        const words = originalWords.replace(/\s/g, "");
+
+        status.textContent = "聞き取った言葉：" + originalWords;
 
         const now = Date.now();
 
-        if (now - lastCommandTime < 700) {
-            return;
-        }
+        if (now - lastCommandTime < 700) return;
 
-        if (
-            words.includes("まる") ||
-            words.includes("マル") ||
-            words.includes("丸") ||
-            words.includes("入った") ||
-            words.includes("成功")
-        ) {
+        const successWords = [
+            "まる", "マル", "丸", "○", "〇",
+            "入った", "成功"
+        ];
+
+        const missWords = [
+            "ばつ", "バツ", "罰", "×", "✕",
+            "外れた", "外れ", "失敗"
+        ];
+
+        if (successWords.some(word => words.includes(word))) {
             lastCommandTime = now;
             addSuccess();
-        } else if (
-            words.includes("ばつ") ||
-            words.includes("バツ") ||
-            words.includes("外れた") ||
-            words.includes("外れ") ||
-            words.includes("失敗")
-        ) {
+        } else if (missWords.some(word => words.includes(word))) {
             lastCommandTime = now;
             addMiss();
         }
@@ -185,7 +163,7 @@ function startVoice() {
                     recognition.start();
                     status.textContent =
                         "聞き取り中です。「マル」または「バツ」と話してください";
-                } catch (error) {
+                } catch {
                     voiceActive = false;
                     status.textContent = "音声入力が停止しました";
                 }
@@ -197,15 +175,14 @@ function startVoice() {
 }
 
 function stopVoice() {
-    const status = document.getElementById("voiceStatus");
-
     voiceActive = false;
 
     if (recognition) {
         recognition.stop();
     }
 
-    status.textContent = "音声入力を停止しました";
+    document.getElementById("voiceStatus").textContent =
+        "音声入力を停止しました";
 }
 
 updateDisplay();
