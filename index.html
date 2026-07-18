@@ -1,88 +1,245 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シュート率トラッカー</title>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  >
 
-    <style>
-        body{
-            font-family: "Yu Gothic", sans-serif;
-            text-align:center;
-            background:#f4f4f4;
-            padding:40px;
-        }
+  <title>シュート練習記録</title>
 
-        .card{
-            background:white;
-            width:320px;
-            margin:auto;
-            padding:20px;
-            border-radius:15px;
-            box-shadow:0 0 10px rgba(0,0,0,0.2);
-        }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        button{
-            width:90%;
-            font-size:30px;
-            padding:20px;
-            margin:12px;
-            border:none;
-            border-radius:15px;
-            cursor:pointer;
-        }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      color: #222;
+    }
 
-        .success-btn{
-            background:#4CAF50;
-            color:white;
-        }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
-        .miss-btn{
-            background:#E53935;
-            color:white;
-        }
+    h1 {
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
 
-        .reset-btn{
-            background:#9E9E9E;
-            color:white;
-        }
+    .date {
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
 
-        .voice-btn{
-            background:#1976D2;
-            color:white;
-        }
+    .score-area {
+      padding: 20px;
+      margin-bottom: 20px;
+      background: white;
+      border-radius: 15px;
+    }
 
-        #voiceStatus{
-            font-size:16px;
-            line-height:1.5;
-        }
-        .stop-voice-btn{
-            background:#455A64;
-            color:white;
-        }
-    </style>
+    .score-row {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 15px;
+    }
+
+    .score-box {
+      width: 45%;
+    }
+
+    .score-label {
+      font-size: 18px;
+    }
+
+    .score-number {
+      margin-top: 5px;
+      font-size: 48px;
+      font-weight: bold;
+    }
+
+    .rate {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .total {
+      margin-top: 8px;
+      font-size: 18px;
+    }
+
+    button {
+      width: 100%;
+      min-height: 60px;
+      margin-bottom: 12px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .success-button {
+      background: #ff9f43;
+      color: white;
+    }
+
+    .miss-button {
+      background: #4a90e2;
+      color: white;
+    }
+
+    .voice-start-button {
+      background: #35a853;
+      color: white;
+    }
+
+    .voice-stop-button {
+      background: #777;
+      color: white;
+    }
+
+    .save-button {
+      background: #8e44ad;
+      color: white;
+    }
+
+    .reset-button {
+      min-height: 48px;
+      background: #ddd;
+      color: #222;
+      font-size: 17px;
+    }
+
+    .status-box {
+      padding: 15px;
+      margin: 10px 0 20px;
+      background: white;
+      border-radius: 12px;
+      font-size: 17px;
+    }
+
+    .heard {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .record-area {
+      padding: 18px;
+      margin-top: 25px;
+      background: white;
+      border-radius: 15px;
+    }
+
+    .record-area h2 {
+      margin-top: 0;
+    }
+
+    .record-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    .record-table th,
+    .record-table td {
+      padding: 9px 4px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .no-record {
+      color: #777;
+    }
+
+    .voice-guide {
+      margin-bottom: 15px;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container">
+    <h1>シュート練習記録</h1>
 
-<div class="card">
+    <div id="todayDate" class="date"></div>
 
-    <h1>🏀 シュート率トラッカー</h1>
+    <div class="score-area">
+      <div class="score-row">
+        <div class="score-box">
+          <div class="score-label">成功</div>
+          <div id="successCount" class="score-number">0</div>
+        </div>
 
-    <h2>成功 <span id="success">0</span></h2>
-    <h2>失敗 <span id="miss">0</span></h2>
-    <h2>成功率 <span id="rate">0</span>%</h2>
+        <div class="score-box">
+          <div class="score-label">失敗</div>
+          <div id="missCount" class="score-number">0</div>
+        </div>
+      </div>
 
-    <button class="success-btn" onclick="addSuccess()">🏀 成功</button>
-    <button class="miss-btn" onclick="addMiss()">❌ 失敗</button>
-    <button class="reset-btn" onclick="resetScore()">🔄 リセット</button>
-    <button class="voice-btn" onclick="startVoice()">🎤 音声入力開始</button>
-    <button class="stop-voice-btn" onclick="stopVoice()">⏹ 音声入力停止</button>
-    <p id="voiceStatus">音声入力は停止中です</p>
+      <div class="rate">
+        成功率：<span id="successRate">0</span>％
+      </div>
 
-</div>
+      <div class="total">
+        合計：<span id="totalCount">0</span>本
+      </div>
+    </div>
 
-<script src="script.js"></script>
+    <button id="successButton" class="success-button">
+      入った
+    </button>
 
+    <button id="missButton" class="miss-button">
+      外れた
+    </button>
+
+    <div class="voice-guide">
+      音声は<br>
+      <strong>「入った」</strong>・<strong>「外れた」</strong><br>
+      の2つだけに反応します。
+    </div>
+
+    <button id="voiceStartButton" class="voice-start-button">
+      音声入力を開始
+    </button>
+
+    <button id="voiceStopButton" class="voice-stop-button">
+      音声入力を停止
+    </button>
+
+    <div class="status-box">
+      <div id="voiceStatus">音声入力は停止中です</div>
+      <div id="heardWord" class="heard">聞き取った言葉：―</div>
+    </div>
+
+    <button id="saveRecordButton" class="save-button">
+      今日の記録を保存
+    </button>
+
+    <button id="resetButton" class="reset-button">
+      今日のカウントをリセット
+    </button>
+
+    <div class="record-area">
+      <h2>毎日の記録</h2>
+
+      <div id="recordList">
+        <p class="no-record">まだ保存された記録はありません。</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
