@@ -5,6 +5,8 @@ const totalCountElement = document.getElementById("totalCount");
 
 const successButton = document.getElementById("successButton");
 const missButton = document.getElementById("missButton");
+const undoSuccessButton = document.getElementById("undoSuccessButton");
+const undoMissButton = document.getElementById("undoMissButton");
 const resetButton = document.getElementById("resetButton");
 const saveRecordButton = document.getElementById("saveRecordButton");
 
@@ -79,6 +81,26 @@ function addSuccess() {
 
 function addMiss() {
   missCount++;
+  updateDisplay();
+}
+
+function undoSuccess() {
+  if (successCount === 0) {
+    alert("取り消せる成功記録がありません。");
+    return;
+  }
+
+  successCount--;
+  updateDisplay();
+}
+
+function undoMiss() {
+  if (missCount === 0) {
+    alert("取り消せる失敗記録がありません。");
+    return;
+  }
+
+  missCount--;
   updateDisplay();
 }
 
@@ -167,9 +189,7 @@ function saveTodayRecord() {
     records.push(todayRecord);
   }
 
-  records.sort((a, b) => {
-    return b.date.localeCompare(a.date);
-  });
+  records.sort((a, b) => b.date.localeCompare(a.date));
 
   saveRecords(records);
   displayRecords();
@@ -407,6 +427,8 @@ function stopVoiceInput() {
 
 successButton.addEventListener("click", addSuccess);
 missButton.addEventListener("click", addMiss);
+undoSuccessButton.addEventListener("click", undoSuccess);
+undoMissButton.addEventListener("click", undoMiss);
 resetButton.addEventListener("click", resetCurrentCounts);
 saveRecordButton.addEventListener("click", saveTodayRecord);
 
